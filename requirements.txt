@@ -1,7 +1,9 @@
 certifi==2018.1.18
 chardet==3.0.4
 fusepy==2.0.4
+-e git+git@github.com:fusiongyro/huefs.git@9a9b4209ad2bc67cc9763f7c674628da83f603a9#egg=huefs
 idna==2.6
+phue==1.0
 pkg-resources==0.0.0
 requests==2.18.4
 urllib3==1.22

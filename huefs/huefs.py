@@ -1,8 +1,13 @@
-import os.path
+import logging
 from configparser import ConfigParser
 from pathlib import Path
+from sys import argv
+
+import phue
 
 import requests
+from fuse import Operations, LoggingMixIn, FUSE
+
 
 class HueBridge:
     def __init__(self):
@@ -29,3 +34,21 @@ class ConfiguredBridge:
 
     def switch(self, light, on):
         requests.put('http://{}/api/{}/lights/{}/state'.format(self.internalipaddress, self.username, light), json={'on':on})
+
+
+
+
+class HueFilesystem(LoggingMixIn, Operations):
+    def __init__(self, bridge):
+        self.bridge = bridge
+
+    def readdir(self, path, fh):
+        if path == '/':
+            return ['.', '..'] + [x.name for x in self.bridge.lights]
+
+
+def main():
+    logging.basicConfig(level=logging.DEBUG)
+    cb = ConfiguredBridge()
+    bridge = phue.Bridge(cb.internalipaddress, cb.username)
+    fuse = FUSE(HueFilesystem(bridge), argv[1], foreground=True, ro=True)
