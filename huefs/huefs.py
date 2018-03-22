@@ -1,13 +1,16 @@
 import logging
 from configparser import ConfigParser
 from pathlib import Path
+from stat import S_IFDIR, S_IFREG
 from sys import argv
 
 import phue
 
 import requests
-from fuse import Operations, LoggingMixIn, FUSE
+from errno import EIO
+from fuse import Operations, LoggingMixIn, FUSE, FuseOSError
 
+logger = logging.getLogger("huefs")
 
 class HueBridge:
     def __init__(self):
@@ -45,7 +48,26 @@ class HueFilesystem(LoggingMixIn, Operations):
     def readdir(self, path, fh):
         if path == '/':
             return ['.', '..'] + [x.name for x in self.bridge.lights]
+        elif path.count('/') == 1 and len(path) > 1:
+            return ['.', '..'] + ['state']
 
+    def getattr(self, path, fh=None):
+        if path.endswith('/state'):
+            return dict(st_mode=(S_IFREG | 0o644), st_size=5)
+        else:
+            return dict(st_mode=(S_IFDIR | 0o755), st_nlink=2)
+
+    def read(self, path, size, offset, fh):
+        if path.endswith('/state'):
+            light_name = path[1:-6]
+            logger.info("obtained light name {}".format(light_name))
+            light = [light
+                    for light in self.bridge.lights
+                    if light.name == light_name
+                    ][0]
+            return (str(light.on) + "\n").encode('ascii')[offset:offset+size]
+        else:
+            raise FuseOSError(EIO)
 
 def main():
     logging.basicConfig(level=logging.DEBUG)

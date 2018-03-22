@@ -2,7 +2,7 @@
 
 from __future__ import with_statement
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 with open('README.rst') as readme:
     documentation = readme.read()
@@ -19,7 +19,10 @@ setup(
     packages=['huefs'],
     url = 'http://github.com/fusiongyro/huefs',
     keywords = 'fuse hue',
-    install_requires = ['fusepy>=2.0.4,<3', 'phue>=1.0.0,<2'],
+    install_requires = [
+        'fusepy>=2.0.4,<3',
+        'phue>=1.0.0,<2',
+        'requests>=2.18,<3'],
 
     classifiers = [
         'Development Status :: 2 - Pre-Alpha',
