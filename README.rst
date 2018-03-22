@@ -1,3 +1,7 @@
-= huefs =
-== Present your Philips Hue devices as a FUSE filesystem ==
+=====
+huefs
+=====
+
+Presents your Philips Hue devices as a FUSE filesystem. Currently in pre-alpha
+state.
 
